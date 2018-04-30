@@ -9,14 +9,12 @@ import java.util.List;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gamma.sharedpreferencestest.R;
@@ -25,15 +23,16 @@ import com.gamma.sharedpreferencestest.beans.Product;
 import com.gamma.sharedpreferencestest.utils.SharedPreference;
 
 
-public class ProductListFragment extends Fragment implements
-        OnItemClickListener, OnItemLongClickListener {
+public class ProductListFragment extends Fragment implements ProductListAdapter.ProductListClickListener
+ {
 
     public static final String ARG_ITEM_ID = "product_list";
 
     Activity activity;
-    ListView productListView;
+    RecyclerView productListView;
     List<Product> products;
     ProductListAdapter productListAdapter;
+    LinearLayoutManager lManager;
 
     SharedPreference sharedPreference;
 
@@ -50,13 +49,15 @@ public class ProductListFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_product_list, container,
                 false);
         findViewsById(view);
+        productListView.setHasFixedSize(true);
+
+        lManager = new LinearLayoutManager(container.getContext());
+        productListView.setLayoutManager(lManager);
 
         setProducts();
 
-        productListAdapter = new ProductListAdapter(activity, products);
+        productListAdapter = new ProductListAdapter(activity, products, this);
         productListView.setAdapter(productListAdapter);
-        productListView.setOnItemClickListener(this);
-        productListView.setOnItemLongClickListener(this);
         return view;
     }
 
@@ -97,39 +98,7 @@ public class ProductListFragment extends Fragment implements
     }
 
     private void findViewsById(View view) {
-        productListView = (ListView) view.findViewById(R.id.list_product);
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Product product = (Product) parent.getItemAtPosition(position);
-        Toast.makeText(activity, product.toString(), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> arg0, View view,
-                                   int position, long arg3) {
-        ImageView button = (ImageView) view.findViewById(R.id.imgbtn_favorite);
-
-        String tag = button.getTag().toString();
-        if (tag.equalsIgnoreCase("grey")) {
-            sharedPreference.addFavorite(activity, products.get(position));
-            Toast.makeText(activity,
-                    "Añadido a favoritos",
-                    Toast.LENGTH_SHORT).show();
-
-            button.setTag("red");
-            button.setImageResource(R.drawable.ic_fav);
-        } else {
-            sharedPreference.removeFavorite(activity, products.get(position));
-            button.setTag("grey");
-            button.setImageResource(R.drawable.ic_fav_border);
-            Toast.makeText(activity,
-                    "Eliminado de Favoritos",
-                    Toast.LENGTH_SHORT).show();
-        }
-
-        return true;
+        productListView = (RecyclerView) view.findViewById(R.id.list_product);
     }
 
     @Override
@@ -138,4 +107,34 @@ public class ProductListFragment extends Fragment implements
         //getActivity().getSupportActionBar().setTitle(R.string.app_name);
         super.onResume();
     }
-}
+
+     @Override
+     public void onProductClick(View v, int position) {
+         System.out.println("POSITION OBTENIDA"+position);
+         Product p = products.get(position);
+         Toast.makeText(activity, p.toString(), Toast.LENGTH_LONG).show();
+     }
+
+     @Override
+     public void onProductLongClick(View v, int position) {
+         ImageView button = (ImageView) v.findViewById(R.id.imgbtn_favorite);
+
+         String tag = button.getTag().toString();
+         if(tag.equalsIgnoreCase("grey")){
+             sharedPreference.addFavorite(activity, products.get(position));
+             Toast.makeText(activity,
+                     activity.getResources().getString(R.string.add_favr),
+                     Toast.LENGTH_SHORT).show();
+
+             button.setTag("red");
+             button.setImageResource(R.drawable.ic_fav);
+         } else {
+             sharedPreference.removeFavorite(activity, products.get(position));
+             button.setTag("grey");
+             button.setImageResource(R.drawable.ic_fav_border);
+             Toast.makeText(activity,
+                     activity.getResources().getString(R.string.remove_favr),
+                     Toast.LENGTH_SHORT).show();
+         }
+     }
+ }

@@ -11,14 +11,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.gamma.sharedpreferencestest.R;
@@ -26,13 +24,14 @@ import com.gamma.sharedpreferencestest.adapter.ProductListAdapter;
 import com.gamma.sharedpreferencestest.beans.Product;
 import com.gamma.sharedpreferencestest.utils.SharedPreference;
 
-public class FavoriteListFragment extends Fragment {
+public class FavoriteListFragment extends Fragment implements ProductListAdapter.ProductListClickListener{
 
     public static final String ARG_ITEM_ID = "favorite_list";
 
-    ListView favoriteList;
+    RecyclerView favoriteList;
     SharedPreference sharedPreference;
     List<Product> favorites;
+    LinearLayoutManager lManager;
 
     Activity activity;
     ProductListAdapter productListAdapter;
@@ -63,58 +62,14 @@ public class FavoriteListFragment extends Fragment {
                         getResources().getString(R.string.no_favorites_msg));
             }
 
-            favoriteList = (ListView) view.findViewById(R.id.list_product);
+            favoriteList = (RecyclerView) view.findViewById(R.id.list_product);
             if (favorites != null) {
-                productListAdapter = new ProductListAdapter(activity, favorites);
+                favoriteList.setHasFixedSize(true);
+                lManager = new LinearLayoutManager(container.getContext());
+                favoriteList.setLayoutManager(lManager);
+
+                productListAdapter = new ProductListAdapter(activity, favorites, this);
                 favoriteList.setAdapter(productListAdapter);
-
-                favoriteList.setOnItemClickListener(new OnItemClickListener() {
-
-                    public void onItemClick(AdapterView<?> parent, View arg1,
-                                            int position, long arg3) {
-
-                    }
-                });
-
-                favoriteList
-                        .setOnItemLongClickListener(new OnItemLongClickListener() {
-
-                            @Override
-                            public boolean onItemLongClick(
-                                    AdapterView<?> parent, View view,
-                                    int position, long id) {
-
-                                ImageView button = (ImageView) view
-                                        .findViewById(R.id.imgbtn_favorite);
-
-                                String tag = button.getTag().toString();
-                                if (tag.equalsIgnoreCase("grey")) {
-                                    sharedPreference.addFavorite(activity,
-                                            favorites.get(position));
-                                    Toast.makeText(
-                                            activity,
-                                            activity.getResources().getString(
-                                                    R.string.add_favr),
-                                            Toast.LENGTH_SHORT).show();
-
-                                    button.setTag("red");
-                                    button.setImageResource(R.drawable.ic_fav);
-                                } else {
-                                    sharedPreference.removeFavorite(activity,
-                                            favorites.get(position));
-                                    button.setTag("grey");
-                                    button.setImageResource(R.drawable.ic_fav_border);
-                                    productListAdapter.remove(favorites
-                                            .get(position));
-                                    Toast.makeText(
-                                            activity,
-                                            activity.getResources().getString(
-                                                    R.string.remove_favr),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                                return true;
-                            }
-                        });
             }
         }
         return view;
@@ -147,5 +102,42 @@ public class FavoriteListFragment extends Fragment {
         getActivity().setTitle(R.string.favorites);
         //getActivity().getActionBar().setTitle(R.string.favorites);
         super.onResume();
+    }
+
+    @Override
+    public void onProductClick(View v, int position) {
+
+    }
+
+    @Override
+    public void onProductLongClick(View v, int position) {
+        ImageView button = (ImageView) v
+                .findViewById(R.id.imgbtn_favorite);
+
+        String tag = button.getTag().toString();
+        if (tag.equalsIgnoreCase("grey")) {
+            sharedPreference.addFavorite(activity,
+                    favorites.get(position));
+            Toast.makeText(
+                    activity,
+                    activity.getResources().getString(
+                            R.string.add_favr),
+                    Toast.LENGTH_SHORT).show();
+
+            button.setTag("red");
+            button.setImageResource(R.drawable.ic_fav);
+        } else {
+            sharedPreference.removeFavorite(activity,
+                    favorites.get(position));
+            button.setTag("grey");
+            button.setImageResource(R.drawable.ic_fav_border);
+            productListAdapter.remove(favorites
+                    .get(position));
+            Toast.makeText(
+                    activity,
+                    activity.getResources().getString(
+                            R.string.remove_favr),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 }

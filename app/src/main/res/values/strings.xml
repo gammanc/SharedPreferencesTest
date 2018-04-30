@@ -2,9 +2,9 @@
     <string name="app_name">SharedPreferencesTest</string>
     <string name="favorites">Favoritos</string>
 
-    <string name="add_favr">Added to Favorites</string>
-    <string name="remove_favr">Removed from Favorites</string>
-    <string name="no_favorites_items">No Favorites</string>
-    <string name="no_favorites_msg">Long press on item to add to favorites.</string>
-    <string name="favorites_remove_msg">Long press on item to remove from favorites.</string>
+    <string name="add_favr">Agregado a Favoritos</string>
+    <string name="remove_favr">Eliminado de Favoritos</string>
+    <string name="no_favorites_items">Sin Favoritos</string>
+    <string name="no_favorites_msg">Mantén presionado un item para agregarlo a favoritos.</string>
+    <string name="favorites_remove_msg">Mantén presionado un item para agregarlo a favoritos.</string>
 </resources>
